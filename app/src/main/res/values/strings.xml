@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ArrayAdapterTest</string>
+    <string name="messenger_service_binding">binding</string>
+    <string name="bind_service">service binded</string>
+    <string name="unbind_service">service unbinded</string>
+    <string name="remote_service_connected">remote service connected</string>
+    <string name="remote_service_disconnected">remote service disconnected</string>
 </resources>

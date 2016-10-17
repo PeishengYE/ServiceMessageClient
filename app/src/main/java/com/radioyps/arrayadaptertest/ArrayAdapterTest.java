@@ -1,11 +1,14 @@
 package com.radioyps.arrayadaptertest;
 
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,58 +30,29 @@ public class ArrayAdapterTest extends AppCompatActivity {
 
     private static final String TAG = "ArrayAdapterTest";
 
-    
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_array_adapter_test);
-        /*
-        ListView listView = (ListView)findViewById(R.id.list_view_layout);
-        TextView list_item_textview = (TextView)findViewById(R.id.)
-         */
+    static final int MSG_REGISTER_CLIENT = 1;
+    /**
+     * Command to the service to unregister a client, ot stop receiving callbacks
+     * from the service.  The Message's replyTo field must be a Messenger of
+     * the client as previously given with MSG_REGISTER_CLIENT.
+     */
+    static final int MSG_UNREGISTER_CLIENT = 2;
 
+    /**
+     * Command to service to set a new value.  This can be sent to the
+     * service to supply a new value, and will be sent by the service to
+     * any registered clients with the new value.
+     */
+    static final int MSG_SET_VALUE = 3;
 
-        String[] data = {
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3",
-                "data 1", "data 2", "data 3"
-        };
+    private static  boolean mIsBound = false;
+    private Messenger mService;
 
-        /* convert string array to array list */
-        List<String> listData = new ArrayList<String>(Arrays.asList(data));
-
-        /* create a new adapter according the list view layout and text view */
-        ArrayAdapter listAdapter = new ArrayAdapter<String> (
-            getBaseContext(),
-            R.layout.list_item_text_view,
-            R.id.list_item_text_view_inside_layout,
-            listData
-        );
-
-
-
-        ListView listView = (ListView)findViewById(R.id.list_view);
-        listView.setAdapter(listAdapter);
-        /* set adapter to the list layout */
-
-
-
-
-    }
-
+    private static final String REMOTE_INTENT = "com.radioyps.apidemos.app.MessengerService";
+    /**
+     * Target we publish for clients to send messages to IncomingHandler.
+     */
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
 
 
 
@@ -88,7 +63,7 @@ public class ArrayAdapterTest extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MessengerService.MSG_SET_VALUE:
+                case MSG_SET_VALUE:
                     mCallbackText.setText("Received from service: " + msg.arg1);
                     Log.i(TAG, "IncomingHandler()>> got new Value: " + msg.arg1);
                     break;
@@ -98,10 +73,7 @@ public class ArrayAdapterTest extends AppCompatActivity {
         }
     }
 
-    /**
-     * Target we publish for clients to send messages to IncomingHandler.
-     */
-    final Messenger mMessenger = new Messenger(new IncomingHandler());
+
 
     /**
      * Class for interacting with the main interface of the service.
@@ -123,14 +95,14 @@ public class ArrayAdapterTest extends AppCompatActivity {
             try {
                 Log.i(TAG, "onServiceConnected()>> register client");
                 Message msg = Message.obtain(null,
-                        MessengerService.MSG_REGISTER_CLIENT);
+                        MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
 
                 // Give it some value as an example.
                 Log.i(TAG, "onServiceConnected()>> send new value");
                 msg = Message.obtain(null,
-                        MessengerService.MSG_SET_VALUE, this.hashCode(), 0);
+                        MSG_SET_VALUE, this.hashCode(), 0);
                 mService.send(msg);
             } catch (RemoteException e) {
                 // In this case the service has crashed before we could even
@@ -140,7 +112,7 @@ public class ArrayAdapterTest extends AppCompatActivity {
             }
 
             // As part of the sample, tell the user what happened.
-            Toast.makeText(Binding.this, R.string.remote_service_connected,
+            Toast.makeText(ArrayAdapterTest.this, R.string.remote_service_connected,
                     Toast.LENGTH_SHORT).show();
         }
 
@@ -151,19 +123,30 @@ public class ArrayAdapterTest extends AppCompatActivity {
             mCallbackText.setText("Disconnected.");
 
             // As part of the sample, tell the user what happened.
-            Toast.makeText(Binding.this, R.string.remote_service_disconnected,
+            Toast.makeText(ArrayAdapterTest.this, R.string.remote_service_disconnected,
                     Toast.LENGTH_SHORT).show();
         }
     };
 
     void doBindService() {
+        Intent apidemoIntent = null;
+        apidemoIntent = new Intent(REMOTE_INTENT);
+        apidemoIntent.setClassName("com.radioyps.apidemos", "com.radioyps.apidemos.app.MessengerService");
+        apidemoIntent.setClassName("com.radioyps.apidemos", "com.radioyps.apidemos.app.MessengerService");
+        mCallbackText.setText("Binding.");
         // Establish a connection with the service.  We use an explicit
         // class name because there is no reason to be able to let other
         // applications replace our component.
-        bindService(new Intent(Binding.this,
-                MessengerService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-        mCallbackText.setText("Binding.");
+        try {
+            bindService(apidemoIntent, mConnection, Context.BIND_AUTO_CREATE);
+            mIsBound = true;
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.e(TAG, " binding error ");
+            mCallbackText.setText("Failed on Binding.");
+        }
+
+
     }
 
     void doUnbindService() {
@@ -173,7 +156,7 @@ public class ArrayAdapterTest extends AppCompatActivity {
             if (mService != null) {
                 try {
                     Message msg = Message.obtain(null,
-                            MessengerService.MSG_UNREGISTER_CLIENT);
+                            MSG_UNREGISTER_CLIENT);
                     msg.replyTo = mMessenger;
                     mService.send(msg);
                 } catch (RemoteException e) {
@@ -221,5 +204,11 @@ public class ArrayAdapterTest extends AppCompatActivity {
             doUnbindService();
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        doUnbindService();
+    }
 }
-}
+

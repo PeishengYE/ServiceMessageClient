@@ -131,12 +131,10 @@ public class ArrayAdapterTest extends AppCompatActivity {
     void doBindService() {
         Intent apidemoIntent = null;
         apidemoIntent = new Intent(REMOTE_INTENT);
-        apidemoIntent.setClassName("com.radioyps.apidemos", "com.radioyps.apidemos.app.MessengerService");
-        apidemoIntent.setClassName("com.radioyps.apidemos", "com.radioyps.apidemos.app.MessengerService");
+
+        apidemoIntent.setClassName("com.radioyps.messengerservice", "com.radioyps.messengerservice.MessengerService");
         mCallbackText.setText("Binding.");
-        // Establish a connection with the service.  We use an explicit
-        // class name because there is no reason to be able to let other
-        // applications replace our component.
+
         try {
             bindService(apidemoIntent, mConnection, Context.BIND_AUTO_CREATE);
             mIsBound = true;

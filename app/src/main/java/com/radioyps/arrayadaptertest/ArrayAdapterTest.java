@@ -186,6 +186,14 @@ public class ArrayAdapterTest extends AppCompatActivity {
         button.setOnClickListener(mBindListener);
         button = (Button)findViewById(R.id.unbind);
         button.setOnClickListener(mUnbindListener);
+        button = (Button)findViewById(R.id.send_button);
+        button.setOnClickListener(mConnectServer);
+
+        button = (Button)findViewById(R.id.turn_off_screen);
+        button.setOnClickListener(mTurnOffScreen);
+
+        button = (Button)findViewById(R.id.trun_on_screen);
+        button.setOnClickListener(mTurnOnScreen);
 
         mCallbackText = (TextView)findViewById(R.id.callback);
         mCallbackText.setText("Not attached.");
@@ -203,6 +211,30 @@ public class ArrayAdapterTest extends AppCompatActivity {
         }
     };
 
+    private  View.OnClickListener mConnectServer  = new View.OnClickListener(){
+        public void onClick(View v){
+         String params[] =    new String[]{"hello"};
+         ConnectToServer task = new ConnectToServer();
+            task.execute(params);
+        }
+    };
+
+    private  View.OnClickListener mTurnOnScreen  = new View.OnClickListener(){
+        public void onClick(View v){
+            String params[] =    new String[]{CommonConstants.MSG_TURN_SCREEN_ON};
+            ConnectToServer task = new ConnectToServer();
+            task.execute(params);
+        }
+    };
+
+
+    private  View.OnClickListener mTurnOffScreen  = new View.OnClickListener(){
+        public void onClick(View v){
+            String params[] =    new String[]{CommonConstants.MSG_TURN_SCREEN_OFF};
+            ConnectToServer task = new ConnectToServer();
+            task.execute(params);
+        }
+    };
     @Override
     protected void onDestroy() {
         super.onDestroy();

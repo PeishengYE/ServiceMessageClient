@@ -59,6 +59,15 @@
 
     </Button>
 
+    <Button android:id="@+id/send_file"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sending_file"
+
+        >
+
+    </Button>
+
     <TextView android:id="@+id/callback"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -66,12 +75,13 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:gravity="center_horizontal"
         android:paddingTop="4dip"/>
-    <EditText
+    <!--EditText
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="top"
         android:hint="@string/message_to_send" />
+        -->
     <Button
         android:layout_width="100dp"
         android:layout_height="wrap_content"

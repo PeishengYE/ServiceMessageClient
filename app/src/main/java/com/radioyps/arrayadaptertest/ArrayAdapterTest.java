@@ -44,6 +44,7 @@ public class ArrayAdapterTest extends AppCompatActivity {
      * any registered clients with the new value.
      */
     static final int MSG_SET_VALUE = 3;
+    static final int MSG_SHOW_MESG = 4;
 
     private static  boolean mIsBound = false;
     private Messenger mService;
@@ -52,8 +53,9 @@ public class ArrayAdapterTest extends AppCompatActivity {
     /**
      * Target we publish for clients to send messages to IncomingHandler.
      */
-    final Messenger mMessenger = new Messenger(new IncomingHandler());
-
+    private  static IncomingHandler mHandler =null ;
+    private  Messenger mMessenger = null;
+    private static  Context mContext = null;
 
 
     /**
@@ -66,6 +68,11 @@ public class ArrayAdapterTest extends AppCompatActivity {
                 case MSG_SET_VALUE:
                     mCallbackText.setText("Received from service: " + msg.arg1);
                     Log.i(TAG, "IncomingHandler()>> got new Value: " + msg.arg1);
+                    break;
+                case MSG_SHOW_MESG:
+                    String messg = (String)msg.obj;
+                    mCallbackText.setText(messg);
+                    Log.i(TAG, "IncomingHandler()>> got new Mesg: " + messg);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -180,6 +187,8 @@ public class ArrayAdapterTest extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.messenger_service_binding);
+        mHandler = new IncomingHandler();
+        mMessenger = new Messenger(mHandler);
 
         // Watch for button clicks.
         Button button = (Button)findViewById(R.id.bind);
@@ -195,8 +204,14 @@ public class ArrayAdapterTest extends AppCompatActivity {
         button = (Button)findViewById(R.id.trun_on_screen);
         button.setOnClickListener(mTurnOnScreen);
 
+        button = (Button)findViewById(R.id.send_file);
+        button.setOnClickListener(mSendingFile);
+
         mCallbackText = (TextView)findViewById(R.id.callback);
         mCallbackText.setText("Not attached.");
+        mContext = ArrayAdapterTest.this;
+
+
     }
 
     private View.OnClickListener mBindListener = new View.OnClickListener() {
@@ -235,10 +250,23 @@ public class ArrayAdapterTest extends AppCompatActivity {
             task.execute(params);
         }
     };
+
+    private  View.OnClickListener mSendingFile  = new View.OnClickListener(){
+        public void onClick(View v){
+            String params[] =    new String[]{"Sending File 123"};
+            makeToastOnScreen("Trying sending file");
+            ReadFileWriteSocket task = new ReadFileWriteSocket();
+            task.execute(params);
+        }
+    };
     @Override
     protected void onDestroy() {
         super.onDestroy();
         doUnbindService();
+    }
+
+    public static void makeToastOnScreen(String mesg){
+        Message.obtain(mHandler, MSG_SHOW_MESG,mesg ).sendToTarget();
     }
 }
 

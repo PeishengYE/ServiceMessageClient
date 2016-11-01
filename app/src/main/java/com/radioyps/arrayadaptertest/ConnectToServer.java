@@ -1,13 +1,16 @@
 package com.radioyps.arrayadaptertest;
 
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -31,7 +34,9 @@ import java.net.UnknownHostException;
         try {
 
             Log.i(LOG_TAG, "sending message: " + cmd);
-            socket = new Socket(CommonConstants.IP_ADDR, CommonConstants.connectPort);
+
+            socket = new Socket();
+            socket.connect(new InetSocketAddress(CommonConstants.IP_ADDR, CommonConstants.connectPort), 2*1000);
             socket.setSoTimeout(CommonConstants.SOCKET_TIMEOUT);
 
             ByteArrayOutputStream byteArrayOutputStream =
@@ -42,6 +47,7 @@ import java.net.UnknownHostException;
             int bytesRead;
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
+
 
 
             outputStream.write(cmd.getBytes());

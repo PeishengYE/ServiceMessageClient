@@ -19,5 +19,6 @@
 
     <string name="turn_on_screen">Turn On Screen</string>
     <string name="turn_off_screen">Turn Off Screen</string>
+    <string name="sending_file">Send File</string>
 
 </resources>
